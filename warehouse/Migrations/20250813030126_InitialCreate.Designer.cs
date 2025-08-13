@@ -12,7 +12,7 @@ using warehouse.Data;
 namespace warehouse.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250813015948_InitialCreate")]
+    [Migration("20250813030126_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

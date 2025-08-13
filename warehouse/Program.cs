@@ -13,6 +13,11 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddMvc();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+
+
+
+
+
 //Вынести в отдельный файл
 builder.Services.AddTransient<IUnits, UnitsRepository>();
 builder.Services.AddTransient<IResources, ResourscesRepository>();
@@ -24,11 +29,21 @@ builder.Services.AddTransient<IBalance, BalanceRepository>();
 
 var app = builder.Build();
 
+using (var serviceScope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
+{
+    using (var context = serviceScope.ServiceProvider.GetService<AppDbContext>())
+    {
+        context.Database.Migrate(); // Применяет все ожидающие миграции
+    }
+}
+
 using (var scope = app.Services.CreateScope())
 {
     AppDbContext content = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     DBObject.initial(content);
 }
+
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
