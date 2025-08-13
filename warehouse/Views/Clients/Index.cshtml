@@ -1,0 +1,129 @@
+﻿@using warehouse.ViewModel
+@model ClientsViewModel
+@{
+    Layout = "_Layout";
+}
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        table {
+            width: 100%;
+            table-layout: fixed;
+        }
+    </style>
+</head>
+<body>
+    <h1>Еденицы измерения</h1>
+    <div class="d-flex gap-2 mb-3">
+        <button class="btn btn-success" id="addClientsBtn">Добавить</button>
+        <a href="@Url.Action("Archive", "Clients")" class="btn btn-warning">К архиву</a>
+    </div>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Наименование</font></font></th>
+                <th><font style="vertical-align: inherit;"><font style="vertical-align: inherit;">Адрес</font></font></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var resource in Model.GetClients)
+            {
+                <tr>
+                    <td>
+                        <a href="@Url.Action("ClientsEdit", "Clients", new { id = @resource.Id, name = @resource.Name })" class="table-row-button edit-Client-btn" data-id="@resource.Id" data-name="@resource.Name">
+                            @resource.Name
+                        </a>
+                    </td>
+                    <td>
+                        <a href="@Url.Action("ClientsEdit", "Clients", new { id = @resource.Id, name = @resource.Name })" class="table-row-button edit-Client-btn" data-id="@resource.Id" data-name="@resource.Address">
+                            @resource.Address
+                        </a>
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+</body>
+<div class="modal fade" id="addClientsModal" tabindex="-1" role="dialog" aria-labelledby="addClientsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addClientsModalLabel">Добавить ресурс</h5>
+                <button type="button" class="close" id="cancelClientsBtn" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addClientsForm">
+                    <div class="form-group">
+                        <label for="ClientsName">Наименование</label>
+                        <input type="text" class="form-control" id="ClientsName" name="ClientsName" placeholder="Введите наименование">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-body">
+                <form id="addClientsForm2">
+                    <div class="form-group">
+                        <label for="ClientsAdres">Адрес</label>
+                        <input type="text" class="form-control" id="ClientsAdres" name="ClientsAdres" placeholder="Введите адрес">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelClientsBtn2">Отмена</button>
+                <button type="button" class="btn btn-primary" id="saveClientsBtn">Сохранить</button>
+            </div>
+        </div>
+        <!-- Сообщение об ошибке -->
+        <div id="clientsAddError" class="alert alert-danger" role="alert" style="display:none;">
+            <span id="clientsAddErrorMessage"></span>
+        </div>
+
+    </div>
+</div>
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+            // Добавить
+            $("#addClientsBtn").click(function () {
+                $("#addClientsModal").modal("show");
+            });
+            //Сохранить
+            $("#saveClientsBtn").click(function () {
+                var ClientsName = $("#ClientsName").val();
+                var ClientsAdres = $("#ClientsAdres").val();
+
+                $.ajax({
+                url: '@Url.Action("AddClients", "Clients")', 
+                    type: 'POST',
+                    data: { name: ClientsName,address : ClientsAdres },
+                    success: function (data) {
+                        
+                        location.reload(); 
+                        $("#addClientsModal").modal("hide");
+
+                    },
+                    error: function (error) {
+                       //alert("Ошибка при добавлении ресурса: " + error.responseText);
+                       $("#clientsAddErrorMessage").text(error.responseText);
+                       $("#clientsAddError").show();
+                       setTimeout(function () {$("#clientsAddError").hide();}, 5000);
+                    }
+                });
+            });
+            $("#cancelClientsBtn").click(function () {
+                $('#addClientsModal').modal('hide');
+            });
+            $("#cancelClientsBtn2").click(function () {
+                $('#addClientsModal').modal('hide');
+            });
+        });
+    </script>
+}

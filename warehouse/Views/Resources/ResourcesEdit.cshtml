@@ -1,0 +1,82 @@
+﻿@using warehouse.ViewModel
+@model ResourcesViewModel
+@{
+    Layout = "_Layout";
+}
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <h1>Еденицы измерения</h1>
+    <div class="d-flex gap-2 mb-3">
+        <button class="btn btn-success" id="saveResourceBtn">Сохранить</button>
+        <button class="btn btn-danger" id="deleteResourceBtn">Удалить</button>
+        <button class="btn btn-primary" id="setArchiveResourcesBtn">@(Model.GetSomeResources.IsArchived ? "В работу" : "В архив")</button>
+    </div>
+    <input type="text" class="form-control" id="ResourcesName" name="ResourcesName" value="@Model.GetSomeResources.Name" />
+</body>
+
+@section Scripts
+{
+    <script>
+        $(document).ready(function () {
+            //Сохранить
+            $("#saveResourceBtn").click(function () {
+                var ResourcesName = $("#ResourcesName").val();
+
+                $.ajax({
+                url: '@Url.Action("saveResource", "Resources")',
+                    type: 'POST',
+                    data: { id:@Model.GetSomeResources.Id ,name: ResourcesName },
+                    success: function (data) {
+                        window.location.href = '@Url.Action("", "Resources")'
+                    },
+                    error: function (error) {
+                        alert("Ошибка при добавлении ресурса: " + error.responseText);
+                    }
+                });
+            });
+            //Удалить
+            $("#deleteResourceBtn").click(function () {
+                $.ajax({
+                url: '@Url.Action("deleteResource", "Resources")',
+                    type: 'POST',
+                    data: { id: @Model.GetSomeResources.Id },
+                    success: function (data) {
+                        window.location.href = '@Url.Action("", "Resources")'
+                    },
+                    error: function (error) {
+                        alert("Ошибка при добавлении ресурса: " + error.responseText);
+                    }
+                });
+            });
+            //смена isAchive
+            $("#setArchiveResourcesBtn").click(function () {
+                var archiv = @Model.GetSomeResources.IsArchived.ToString().ToLower();
+
+                $.ajax({
+                url: '@Url.Action("setArchiveResource", "Resources")',
+                    type: 'POST',
+                    data: { id: @Model.GetSomeResources.Id, archivState: archiv},
+                    success: function (data) {
+                        window.location.href = '@Url.Action("", "Resources")'
+                    },
+                    error: function (error) {
+                        alert("Ошибка при добавлении ресурса: " + error.responseText);
+                    }
+                });
+            });
+            $("#cancelResourcesBtn").click(function () {
+                $('#addResourcesModal').modal('hide');
+            });
+            $("#cancelResourcesBtn2").click(function () {
+                $('#addResourcesModal').modal('hide');
+            });
+        });
+    </script>
+}

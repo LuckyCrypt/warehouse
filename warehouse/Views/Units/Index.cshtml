@@ -1,0 +1,106 @@
+﻿@using warehouse.ViewModel
+@model UnitsViewModel
+@{
+    Layout = "_Layout";
+}
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+<body>
+    <h1>Еденицы измерения</h1>
+    <div class="d-flex gap-2 mb-3">
+        <button class="btn btn-success" id="addUnitsBtn">Добавить</button>
+        <a href="@Url.Action("Archive", "Units")" class="btn btn-warning">К архиву</a>
+    </div>
+    <table class="table table-bordered">
+        <thead>
+            <tr class="bg-secondary text-light">
+                <th>Наименование</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var units in Model.GetUnits.ToList())
+            {
+                <tr>
+                    <td>
+                        <a href="@Url.Action("UnitsEdit", "Units", new { id = @units.Id, name = @units.Name })" class="table-row-button edit-unit-btn" data-id="@units.Id" data-name="@units.Name">
+                            @units.Name
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</body>
+
+<div class="modal fade" id="addUnitsModal" tabindex="-1" role="dialog" aria-labelledby="addUnitsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addUnitsModalLabel">Добавить ресурс</h5>
+                <button type="button" class="close" id="cancelUnitsBtn" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addUnitsForm">
+                    <div class="form-group">
+                        <label for="UnitsName">Наименование</label>
+                        <input type="text" class="form-control" id="UnitsName" name="UnitsName" placeholder="Введите наименование">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="cancelUnitsBtn2">Отмена</button>
+                <button type="button" class="btn btn-primary" id="saveUnitsBtn">Сохранить</button>
+            </div>
+        </div>
+        <!-- Сообщение об ошибке -->
+        <div id="clientsAddError" class="alert alert-danger" role="alert" style="display:none;">
+            <span id="clientsAddErrorMessage"></span>
+        </div>
+    </div>
+</div>
+@section Scripts 
+{
+    <script>
+        $(document).ready(function () {
+            // Добавить
+            $("#addUnitsBtn").click(function () {
+                $("#addUnitsModal").modal("show");
+            });
+            //Сохранить
+            $("#saveUnitsBtn").click(function () {
+                var UnitsName = $("#UnitsName").val();
+
+                $.ajax({
+                url: '@Url.Action("AddUnits","Units")',
+                    type: 'POST',
+                    data: { name: UnitsName },
+                    success: function (data) {
+                        location.reload(); 
+                        $("#addUnitsModal").modal("hide");
+
+                    },
+                    error: function (error) {
+                       //alert("Ошибка при добавлении ресурса: " + error.responseText);
+                       $("#clientsAddErrorMessage").text(error.responseText);
+                       $("#clientsAddError").show();
+                       setTimeout(function () {$("#clientsAddError").hide();}, 5000);
+                    }
+                });
+            });
+            $("#cancelUnitsBtn").click(function () {
+                $('#addUnitsModal').modal('hide');
+            });
+            $("#cancelUnitsBtn2").click(function () {
+                $('#addUnitsModal').modal('hide');
+            });
+        });
+    </script>
+}
